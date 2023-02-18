@@ -3,6 +3,8 @@ const express = require('express');
 const port = process.env.port || 5000;
 const app = express();
 const cors = require('cors')
+const ObjectId = require('mongodb').ObjectId;
+
 
 
 //middleware
@@ -28,22 +30,38 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const database = client.db("volunteerNetwork");
-        const eventsCollection = database.collection("events");
+        const eventsCollections = database.collection("events");
         console.log("Database connected")
         
         app.post('/addEvent', async(req, res)=>{
             console.log("hitting event api")
             const event = req.body;
-            const result = await eventsCollection.insertOne(event);
+            const result = await eventsCollections.insertOne(event);
             res.send(result)
 
         })
         //Events get api
         app.get('/events', async(req,res)=>{
-           const events = await eventsCollection.find({}).toArray();
-           console.log(events);
+           const events = await eventsCollections.find({}).toArray();
+        //    console.log(events);
            res.json(events)
         })
+
+        app.get('/events/:id', async(req,res)=>{
+            const id = (req.params.id);
+            const query = {_id: new ObjectId(id)}
+            const event = await eventsCollections.findOne(query)
+            // console.log(event);
+            res.json(event)
+        })
+        //events post api for deleting 
+        app.post('/events', async(req,res)=>{
+            console.log(req.body.id);
+            const id = req.body.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await eventsCollections.deleteOne(query);
+            res.send(result);
+         })
     }
     finally {
         // await client.close();
