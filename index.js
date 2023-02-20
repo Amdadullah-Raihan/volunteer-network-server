@@ -31,10 +31,11 @@ async function run() {
     try {
         const database = client.db("volunteerNetwork");
         const eventsCollections = database.collection("events");
+        const registeredVolunteersCollections = database.collection('registered_volunteers')
         console.log("Database connected")
         
         app.post('/addEvent', async(req, res)=>{
-            console.log("hitting event api")
+            console.log(req.body)
             const event = req.body;
             const result = await eventsCollections.insertOne(event);
             res.send(result)
@@ -61,6 +62,14 @@ async function run() {
             const query = { _id: new ObjectId(id) }
             const result = await eventsCollections.deleteOne(query);
             res.send(result);
+         })
+
+         // post api for volunteer registration 
+         app.post('/register-volunteer', async(req,res)=>{
+            console.log(req.body);
+            const volunteer = req.body;
+            const result = await registeredVolunteersCollections.insertOne(volunteer)
+            res.send(result)
          })
     }
     finally {
