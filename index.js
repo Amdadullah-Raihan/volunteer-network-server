@@ -71,6 +71,13 @@ async function run() {
             const result = await registeredVolunteersCollections.insertOne(volunteer)
             res.send(result)
          })
+
+         //get api for my events 
+         app.get('/my-events', async(req,res)=>{
+            console.log('hiting ');
+            const myEvents = await registeredVolunteersCollections.find({}).toArray();
+            res.json(myEvents)
+         })
     }
     finally {
         // await client.close();
